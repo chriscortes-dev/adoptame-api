@@ -6,6 +6,11 @@ class Fundacion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    direcciones = models.ManyToManyField(
+        "direcciones.Direccion",
+        blank=True
+    )
+
     miembros = models.ManyToManyField(
         User,
         through='FundacionMiembro',

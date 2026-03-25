@@ -1,5 +1,6 @@
 from django.db import models
 from fundacion.models import Fundacion
+from direccion.models import Direccion
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -78,32 +79,46 @@ class EstadoMascota(models.Model):
         return f'{self.mascota} - {self.estado}'
     
 class UbicacionMascota(models.Model):
-    estado_mascota = models.ForeignKey(EstadoMascota, on_delete=models.CASCADE, related_name='ubicaciones')
+    mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE, related_name='ubicaciones')
     fundacion = models.ForeignKey(Fundacion, null=True, blank=True, on_delete=models.SET_NULL)
     usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    direccion = models.ForeignKey(Direccion, on_delete=models.PROTECT)
     fecha_inicio = models.DateTimeField(default=timezone.now)
     fecha_fin = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        # Esto asegura a nivel DB que un estado_mascota solo tenga una ubicación activa
         constraints = [
+            # Solo una ubicación activa por mascota
             models.UniqueConstraint(
-                fields=['estado_mascota'],
+                fields=['mascota'],
                 condition=models.Q(fecha_fin__isnull=True),
-                name='unique_active_ubicacion_por_estado'
+                name='unique_active_ubicacion_por_mascota'
             )
         ]
 
     def clean(self):
-        # Validación adicional antes de guardar
+        super().clean()
+
+        # Regla 1: Exclusividad (usuario XOR fundacion)
+        if bool(self.usuario) == bool(self.fundacion):
+            raise ValidationError(
+                "Debe existir solo usuario o fundacion, no ambos ni ninguno."
+            )
+
+        # Regla 2: Solo una ubicación activa por mascota
         if self.fecha_fin is None:
-            if UbicacionMascota.objects.filter(estado_mascota=self.estado_mascota, fecha_fin__isnull=True).exclude(pk=self.pk).exists():
-                raise ValidationError("Esta mascota ya tiene una ubicación activa.")
+            if UbicacionMascota.objects.filter(
+                mascota=self.mascota,
+                fecha_fin__isnull=True
+            ).exclude(pk=self.pk).exists():
+                raise ValidationError(
+                    "Esta mascota ya tiene una ubicación activa."
+                )
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # llama a clean() para validación
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        target = self.fundacion if self.fundacion else self.usuario
-        return f'{self.estado_mascota.mascota.nombre} - {target}'
+        target = self.fundacion or self.usuario or "Sin asignar"
+        return f'{self.mascota.nombre} - {target}'
