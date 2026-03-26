@@ -1,7 +1,7 @@
 from django.db import models
 from fundacion.models import Fundacion
 from direccion.models import Direccion
-from django.contrib.auth.models import User
+from usuario.models import Usuario
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -81,7 +81,7 @@ class EstadoMascota(models.Model):
 class UbicacionMascota(models.Model):
     mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE, related_name='ubicaciones')
     fundacion = models.ForeignKey(Fundacion, null=True, blank=True, on_delete=models.SET_NULL)
-    usuario = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    usuario = models.ForeignKey(Usuario, null=True, blank=True, on_delete=models.SET_NULL)
     direccion = models.ForeignKey(Direccion, on_delete=models.PROTECT)
     fecha_inicio = models.DateTimeField(default=timezone.now)
     fecha_fin = models.DateTimeField(null=True, blank=True)

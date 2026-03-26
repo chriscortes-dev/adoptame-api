@@ -1,18 +1,19 @@
 from django.db import models
-from django.contrib.auth.models import User
+from usuario.models import Usuario
+from direccion.models import Direccion
 
 class Fundacion(models.Model):
     nombre = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    direcciones = models.ManyToManyField(
-        "direcciones.Direccion",
+    direccion = models.ManyToManyField(
+        Direccion,
         blank=True
     )
 
     miembros = models.ManyToManyField(
-        User,
+        Usuario,
         through='FundacionMiembro',
         related_name='fundaciones'
     )
@@ -28,7 +29,7 @@ class FundacionMiembro(models.Model):
     ]
 
     fundacion = models.ForeignKey(Fundacion, on_delete=models.CASCADE)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     rol = models.CharField(max_length=10, choices=ROL_CHOICES, default='MIEMBRO')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
