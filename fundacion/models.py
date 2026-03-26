@@ -1,16 +1,10 @@
 from django.db import models
 from usuario.models import Usuario
-from direccion.models import Direccion
 
 class Fundacion(models.Model):
     nombre = models.CharField(max_length=150)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    direccion = models.ManyToManyField(
-        Direccion,
-        blank=True
-    )
 
     miembros = models.ManyToManyField(
         Usuario,

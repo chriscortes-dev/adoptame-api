@@ -1,17 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from direccion.models import Direccion
 
 class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
-
-    # Relación a direcciones (puede ser null al inicio)
-    direccion = models.ForeignKey(
-        Direccion,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
 
     # Para evitar conflictos con grupos y permisos
     groups = models.ManyToManyField(
