@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .serializers import MascotasDisponiblesSerializer
+from .models import Mascota
 
-# Create your views here.
+class MascotasDisponiblesViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Endpoint público:
+    Retorna solo mascotas cuyo estado actual es DISPONIBLE.
+    """
+    queryset = Mascota.objects.filter(estadomascota__estado='Disponible')
+    serializer_class = MascotasDisponiblesSerializer
+    permission_classes = [AllowAny]

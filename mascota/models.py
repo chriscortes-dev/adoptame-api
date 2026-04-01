@@ -21,14 +21,14 @@ class RazaMascota(models.Model):
 class Mascota(models.Model):
 
     SEXO_CHOICES = [
-        ('M', 'Macho'),
-        ('H', 'Hembra'),
+        ('Macho', 'Macho'),
+        ('Hembra', 'Hembra'),
     ]
 
     ACTIVIDAD_CHOICES = [
-        ('BAJA', 'Baja'),
-        ('MEDIA', 'Media'),
-        ('ALTA', 'Alta'),
+        ('Baja', 'Baja'),
+        ('Media', 'Media'),
+        ('Alta', 'Alta'),
     ]
 
     raza = models.ForeignKey(RazaMascota, on_delete=models.CASCADE)
@@ -36,7 +36,7 @@ class Mascota(models.Model):
     nombre = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField()
 
-    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES)
+    sexo = models.CharField(max_length=50, choices=SEXO_CHOICES)
     color = models.CharField(max_length=50)
     patron_color = models.CharField(max_length=50)
 
@@ -58,7 +58,6 @@ class HistorialMedicoMascota(models.Model):
     observacion_vacuna = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'Historial de {self.mascota.nombre}'
@@ -66,20 +65,19 @@ class HistorialMedicoMascota(models.Model):
 class EstadoMascota(models.Model):
 
     ESTADO_CHOICES = [
-        ('DISPONIBLE', 'Disponible'),
-        ('ADOPTADO', 'Adoptado'),
-        ('EN_REVISION', 'En revisión'),
+        ('Disponible', 'Disponible'),
+        ('Adoptado', 'Adoptado'),
+        ('En revisión', 'En revisión'),
     ]
 
-    mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE, related_name='estados')
+    mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES)
-    fecha_cambio = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.mascota} - {self.estado}'
     
 class UbicacionMascota(models.Model):
-    mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE, related_name='ubicaciones')
+    mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE)
     fundacion = models.ForeignKey(Fundacion, null=True, blank=True, on_delete=models.SET_NULL)
     usuario = models.ForeignKey(Usuario, null=True, blank=True, on_delete=models.SET_NULL)
     direccion = models.ForeignKey(Direccion, on_delete=models.PROTECT)
